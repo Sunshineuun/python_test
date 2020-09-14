@@ -1,2 +1,3 @@
 mitmproxy启动命令：mitmweb -s "D:\\qiushengming\\workspace\\python_test\\crawler\\mitmproxy\\addons.py"
 浏览器启动命令："C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --proxy-server=127.0.0.1:8080 --ignore-certificate-errors
+默认参数：{"curstart": "1", "index": 1, "response_status_code": 200, "is_request_end": "1", "tableName": "TABLE25", "index2": 1}；文件路径（D:\Temp\config.txt）
