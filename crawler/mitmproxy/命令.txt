@@ -1,0 +1,2 @@
+mitmproxy启动命令：mitmweb -s "D:\\qiushengming\\workspace\\python_test\\crawler\\mitmproxy\\addons.py"
+浏览器启动命令："C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --proxy-server=127.0.0.1:8080 --ignore-certificate-errors
