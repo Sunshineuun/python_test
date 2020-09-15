@@ -13,11 +13,7 @@ import json
 import logging
 import random
 import time
-
 import os
-
-from bs4 import BeautifulSoup
-from selenium import webdriver
 import pyautogui
 
 """
@@ -71,6 +67,16 @@ mitmporxy下载经历
 """
 http://app1.nmpa.gov.cn/data_nmpa/face3/base.jsp?tableId=25&tableName=TABLE25&title=%E5%9B%BD%E4%BA%A7%E8%8D%AF%E5%93%81&bcId=152904713761213296322795806604&CbSlDlH0=qArmqqrFK2NFK2NFKbJzH8B2eTrzIDkCDF0r06WuES0qqmL
 """
+"""
+环境
+1. 安装python
+2. 安装mitmproxy，pip install mitmproxy
+3. 安装pyautogui， pip install pyautogui
+4. 调整坐标，根据不同电脑的像素进行调整
+5. 启动mitmproxy，命令如下：mitmweb -s "D:\\qiushengming\\workspace\\python_test\\crawler\\mitmproxy\\addons.py"
+6. 启动浏览器："C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --proxy-server=127.0.0.1:8080 --ignore-certificate-errors
+7. 运行程序
+"""
 # 分割线，pyautogui属性定义------------------------------------------------------
 pyautogui.PAUSE = 1  # 每个函数执行后停顿1.5秒
 pyautogui.FAILSAFE = True  # 鼠标移到左上角会触发FailSafeException，因此快速移动鼠标到左上角也可以停止
@@ -83,11 +89,18 @@ cfda_en_drug_home_page = \
     'http://qy1.sfda.gov.cn/datasearchcnda/face3/base.jsp?tableId=36&tableName=TABLE36&title=%E8%BF%9B%E5%8F%A3%E8%8D%AF%E5%93%81&bcId=152904858822343032639340277073'
 
 duration = 1  # 鼠标移动的持续时间
+# 以下适用与【1920X1080】
+first_record_x, first_record_y = 525, 193
+record_step = 39  # 步长
+return_x, return_y = 1647, 220  # 返回按钮的坐标 1582, 325；1648,202；1670, 150
+next_x, next_y = 1240, 800  # 下一页按钮的坐标 1250
 
+page_num_x, page_num_y = 1480, 800  # 翻页的输入栏
+page_go_x, page_go_y = 1570, 800
 
-# 分割线，url请求拦截定义---------------------------------------------------------------
+main_page_x, main_page_y = 280, 450
 
-
+config_file_path = 'D:/Temp/config.txt'
 # 分割线，函数定义---------------------------------------------------------------
 def sleep_time():
     return random.randint(5, 7)
@@ -96,6 +109,30 @@ def sleep_time():
 def dir_exists(directory):
     if not os.path.exists(directory):
         os.mkdir(directory)
+
+
+def check_dir_exists():
+    """
+    检测目录是否存在如果不存在则创建
+    :return:
+    """
+    dirs = [
+        'D:/Temp',
+        'D:/Temp/CFDA',
+        'D:/Temp/CFDA_2',
+        'D:/Temp/CFDA_2/CFDA-XQ',
+        'D:/Temp/CFDA_2/CFDA-PAGE'
+    ]
+    for _dir in dirs:
+        dir_exists(_dir)
+
+    # 检查配置文件是否存在，如果不存在则写入
+
+    is_exists = os.path.exists(config_file_path)
+    if not is_exists:
+        config = '{"curstart": "1", "index": 1, "response_status_code": 200, "is_request_end": "1", "tableName": "TABLE25", "index2": 1}'
+        with open(config_file_path, 'w', encoding='utf-8') as f:
+            f.write(config)
 
 
 def read_config():
@@ -138,7 +175,7 @@ def click(x, y):
 def enter_main_page():
     pyautogui.scroll(2000)  # 置顶
     while True:
-        if click(280, 450):
+        if click(main_page_x, main_page_y):
             break
     pyautogui.scroll(-2000)  # 置底
 
@@ -149,13 +186,13 @@ def jump_to_page(_config):
         enter_main_page()
 
         # 定位到页面输入栏
-        pyautogui.moveTo(1480, 800, duration=1)
+        pyautogui.moveTo(page_num_x, page_num_y, duration=1)
         pyautogui.click()
         pyautogui.doubleClick()
 
         # 输入页码
         pyautogui.typewrite(_config['curstart'])
-        if click(1570, 800):
+        if click(page_go_x, page_go_y):
             return
 
 
@@ -177,10 +214,7 @@ def page_handle(_page):
     pyautogui.screenshot(file_path, region=(0, 0, 1920, 1080))
 
     # x, y = 123, 281  # 第一条记录的的坐标 国产
-    x, y = 525, 193  # 第一条记录的的坐标 进口；123, 281
-    x_return, y_return = 1647, 220  # 返回按钮的坐标 1582, 325；1648,202；1670, 150
-    x_next, y_next = 1240, 800  # 下一页按钮的坐标 1250
-
+    x, y = first_record_x, first_record_y  # 第一条记录的的坐标 进口；123, 281
     start_index = config['index']
     # 暂停
     # time.sleep(sleep_time())
@@ -197,17 +231,16 @@ def page_handle(_page):
                 return False
 
             time.sleep(sleep_time())
-            is_ok = click(x_return, y_return)  # 点击，返回按钮
+            is_ok = click(return_x, return_y)  # 点击，返回按钮
 
             if not is_ok:
                 # 返回首页
                 return False
 
-        y += 39  # 每行数据x坐标差35
+        y += record_step  # 每行数据x坐标差35
 
     # 下一页
-    pyautogui.moveTo(x_next, y_next, duration=duration)
-    pyautogui.click()
+    click(next_x, next_y)
     return True
 
 
@@ -218,7 +251,8 @@ def to_soup(html):
     :param html: 带有html标签的字符串 \n
     :return: BeautifulSoup对象 \n
     """
-    return BeautifulSoup(html, 'html.parser')
+    # BeautifulSoup(html, 'html.parser')
+    return html
 
 
 if __name__ == '__main__':
@@ -258,13 +292,15 @@ if __name__ == '__main__':
     #  1530,985; 点击go按钮
     # pyautogui.moveTo(x=1500, y=985, duration=2)
     # pyautogui.click()
-
+    check_dir_exists()
     time.sleep(5)
     pyautogui.click(70, 230)
+    i = 1
     # 跳转到某页面
     jump_to_page(read_config())
     for page in range(1, 11042):
         is_ok1 = page_handle(page)
         if not is_ok1:
+            time.sleep(sleep_time() * i)
+            i += 1
             jump_to_page(read_config())
-            pass
