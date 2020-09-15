@@ -255,7 +255,7 @@ def to_soup(html):
     return html
 
 
-if __name__ == '__main__':
+def cfda_start():
     """
     测试用机器的像素是：1920,1080
     driver = None
