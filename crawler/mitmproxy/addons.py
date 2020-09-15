@@ -15,6 +15,8 @@ k1 = ['http://app1.nmpa.gov.cn/data_nmpa/face3/content.jsp?',  # 具体内容
       'http://app1.nmpa.gov.cn/data_nmpa/face3/search.jsp?',
       ]
 config_file_path = 'D:/Temp/config.txt'
+cfda_xq_dir = 'D:/Temp/CFDA_2/CFDA-XQ'
+cfda_page_dir = 'D:/Temp/CFDA_2/CFDA-PAGE'
 
 
 def dir_exists(directory):
@@ -69,8 +71,8 @@ class Counter:
             # 这个是每条的详情
             # params.update(parser_data(flow.request.query))
 
-            self.page_config['DIR'] = 'D:/Temp/CFDA_2/CFDA-XQ/第{}页'.format(
-                self.page_config.get('curstart'))
+            self.page_config['DIR'] = '{}/第{}页'.format(cfda_xq_dir,
+                                                       self.page_config.get('curstart'))
 
             self.page_config['file_name'] = '{}_{}.html'.format(
                 self.page_config['tableName'],
@@ -85,7 +87,7 @@ class Counter:
             # print(parser_data(flow.request.urlencoded_form))
             # 这个是翻页
             self.page_config.update(parser_data(flow.request.urlencoded_form))
-            self.page_config['DIR'] = 'D:/Temp/CFDA_2/CFDA-PAGE'
+            self.page_config['DIR'] = cfda_page_dir
             self.page_config['file_name'] = '{}_第{}页.html'.format(
                 self.page_config['tableName'],
                 self.page_config['curstart']
