@@ -53,7 +53,7 @@ class Counter:
         params = {
             'is_request_end': '0'
         }
-        url = 'flow.request.url'
+        url = flow.request.url
         for k in k1:
             if str(url).startswith(k):
                 self.page_config.update(update_config(params))
